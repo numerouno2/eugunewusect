@@ -20,7 +20,15 @@ local remote = ReplicatedStorage:WaitForChild("BloxbizRemotes"):WaitForChild("On
 
 -- FLAGS
 local running, duping, autoSelling, autoLeaveEnabled = false, false, false, false
-local selectedRod, lastLocation = "HolyRod", nil
+local selectedRod = "HolyRod"
+local lastLocation = nil
+
+-- ROD LIST
+local rodList = {
+    "AuroraRod", "FischerRod", "HolyRod", "MidasRod",
+    "PinkRod", "RelicRod", "SpecialRod", "SunkenRod",
+    "UltratechRod", "NormalRod"
+}
 
 -- LOCATIONS
 local sellPos = Vector3.new(-210, 15, 357)
@@ -247,7 +255,7 @@ createSwitch(contentFrames["Main"], "Start AutoFish", 0, false, function(val)
     if val and not running then running = true task.spawn(autoFish) else running = false end
 end)
 
-createSwitch(contentFrames["Main"], "Dupe Fish (Beta/not works!)", 1, false, function(val)
+createSwitch(contentFrames["Main"], "Dupe Fish (Beta)", 1, false, function(val)
     if val and not duping then duping = true task.spawn(dupeFish) else duping = false end
 end)
 
@@ -267,17 +275,60 @@ createSwitch(contentFrames["Main"], "AutoSell", 2, false, function(val)
 end)
 
 -- Settings Tab Content
-createSwitch(contentFrames["Settings"], "Admin Detector", 0, false, function(val)
-    autoLeaveEnabled = val
-    checkPlayers()
-end)
 
-createSwitch(contentFrames["Settings"], "Sell Manual", 1, false, function(val)
-    if val then
-        local root = character:WaitForChild("HumanoidRootPart")
-        lastLocation = root.Position
-        root.CFrame = CFrame.new(sellPos + Vector3.new(0,3,0))
-    end
+-- Dropdown Rod Selector in Settings
+local rodLabel = Instance.new("TextLabel", contentFrames["Settings"])
+rodLabel.Size = UDim2.new(1, 0, 0, 16)
+rodLabel.Position = UDim2.new(0, 0, 0, 3)
+rodLabel.Text = "🎣 Pilih Pancingan:"
+rodLabel.Font = Enum.Font.Gotham
+rodLabel.TextSize = 14
+rodLabel.TextColor3 = Color3.new(1, 1, 1)
+rodLabel.BackgroundTransparency = 1
+rodLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local rodDropdown = Instance.new("TextButton", contentFrames["Settings"])
+rodDropdown.Size = UDim2.new(1, -20, 0, 26)
+rodDropdown.Position = UDim2.new(0, 0, 0, 20)
+rodDropdown.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+rodDropdown.TextColor3 = Color3.new(1, 1, 1)
+rodDropdown.Font = Enum.Font.Gotham
+rodDropdown.TextSize = 14
+rodDropdown.Text = selectedRod or "Pilih Rod"
+Instance.new("UICorner", rodDropdown).CornerRadius = UDim.new(0, 6)
+
+local dropdownList = Instance.new("ScrollingFrame", contentFrames["Settings"])
+dropdownList.Size = UDim2.new(1, -20, 0, 100)
+dropdownList.Position = UDim2.new(0, 0, 0, 50)
+dropdownList.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+dropdownList.Visible = false
+dropdownList.ClipsDescendants = true
+dropdownList.ScrollBarThickness = 6
+dropdownList.CanvasSize = UDim2.new(0, 0, 0, #rodList * 24)
+Instance.new("UICorner", dropdownList).CornerRadius = UDim.new(0, 6)
+
+local layout = Instance.new("UIListLayout", dropdownList)
+layout.Padding = UDim.new(0, 2)
+
+for _, rodName in ipairs(rodList) do
+    local rodBtn = Instance.new("TextButton", dropdownList)
+    rodBtn.Size = UDim2.new(1, 0, 0, 22)
+    rodBtn.Text = rodName
+    rodBtn.Font = Enum.Font.Gotham
+    rodBtn.TextSize = 13
+    rodBtn.TextColor3 = Color3.new(1, 1, 1)
+    rodBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    Instance.new("UICorner", rodBtn).CornerRadius = UDim.new(0, 4)
+
+    rodBtn.MouseButton1Click:Connect(function()
+        selectedRod = rodName
+        rodDropdown.Text = rodName
+        dropdownList.Visible = false
+    end)
+end
+
+rodDropdown.MouseButton1Click:Connect(function()
+    dropdownList.Visible = not dropdownList.Visible
 end)
 
 -- Teleport Tab Content
@@ -345,7 +396,12 @@ local function antiAFK()
 end
 
 -- Extras Tab Content
-createSwitch(contentFrames["Extras"], "FPS Boost Mode", 0, false, function(val)
+createSwitch(contentFrames["Extras"], "Admin Detector", 0, false, function(val)
+    autoLeaveEnabled = val
+    checkPlayers()
+end)
+
+createSwitch(contentFrames["Extras"], "FPS Boost Mode", 1, false, function(val)
     fpsBoosted = val
     if val then
         for _, obj in pairs(workspace:GetDescendants()) do
@@ -405,14 +461,6 @@ createSwitch(contentFrames["Extras"], "FPS Boost Mode", 0, false, function(val)
         Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
     end
 end)
-createSwitch(contentFrames["Extras"], "Remove Skybox", 1, false, function(val)
-    if val then
-        for _, v in pairs(Lighting:GetChildren()) do
-            if v:IsA("Sky") then v:Destroy() end
-        end
-        Lighting.Sky = nil
-    end
-end)
 
 createSwitch(contentFrames["Extras"], "Remove Animations", 2, false, function(val)
     if val and character then
@@ -423,4 +471,3 @@ createSwitch(contentFrames["Extras"], "Remove Animations", 2, false, function(va
         end
     end
 end)
-
