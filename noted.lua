@@ -247,7 +247,7 @@ createSwitch(contentFrames["Main"], "Start AutoFish", 0, false, function(val)
     if val and not running then running = true task.spawn(autoFish) else running = false end
 end)
 
-createSwitch(contentFrames["Main"], "Dupe Fish (Beta)", 1, false, function(val)
+createSwitch(contentFrames["Main"], "Dupe Fish (Beta/not works!)", 1, false, function(val)
     if val and not duping then duping = true task.spawn(dupeFish) else duping = false end
 end)
 
@@ -423,3 +423,4 @@ createSwitch(contentFrames["Extras"], "Remove Animations", 2, false, function(va
         end
     end
 end)
+
