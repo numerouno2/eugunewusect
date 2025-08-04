@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
 local WORKINK_LINK = "https://workink.net/22xC/c6379clz"
-local SCRIPT_LINK = "https://raw.githubusercontent.com/numerouno2/eugunewusect/refs/heads/main/obfuscated_script-1754257892180.lua"
+local SCRIPT_LINK = "https://raw.githubusercontent.com/numerouno2/eugunewusect/refs/heads/main/noted.lua"
 local TOKEN_FILE = "eugunewu_token.txt"
 
 pcall(function()
