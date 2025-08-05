@@ -315,7 +315,7 @@ createSwitch(contentFrames["Main"], "AutoSell", 2, false, function(val)
         task.spawn(function()
             while autoSelling do
                 teleportAndSell()
-                for i=1,180 do if not autoSelling then break end task.wait(1) end
+                for i=1,120 do if not autoSelling then break end task.wait(1) end
             end
         end)
     else
