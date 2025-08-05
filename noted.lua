@@ -128,6 +128,121 @@ local function checkPlayers()
     end
 end
 
+local function ultimateFPSBoost(enable)
+    fpsBoosted = enable
+    if enable then
+        -- Lighting settings
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 1e10
+        Lighting.Brightness = 0
+        Lighting.ClockTime = 14
+        for _, v in pairs(Lighting:GetChildren()) do
+            if v:IsA("PostEffect") or v:IsA("BlurEffect") then
+                v.Enabled = false
+            end
+        end
+
+        -- Terrain settings
+        if Terrain then
+            Terrain.WaterWaveSize = 0
+            Terrain.WaterWaveSpeed = 0
+            Terrain.WaterReflectance = 0
+            Terrain.WaterTransparency = 1
+        end
+
+        -- Workspace optimization
+        for _, obj in ipairs(Workspace:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.Material = Enum.Material.SmoothPlastic
+                obj.Reflectance = 0
+                obj.CastShadow = false
+                obj.Color = Color3.fromRGB(110, 110, 110)
+                obj.Transparency = 0
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj:Destroy()
+            elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+                obj:Destroy()
+            elseif obj:IsA("SurfaceGui") or obj:IsA("BillboardGui") then
+                obj.Enabled = false
+            elseif obj:IsA("Light") then
+                obj.Enabled = false
+            end
+        end
+
+        -- Character animation simplification
+        local human = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if human then
+            human.BreakJointsOnDeath = false
+            human:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+            human:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+            human:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+        end
+    else
+        warn("🟡 Ultimate FPS Boost OFF – visual tidak dikembalikan.")
+    end
+end
+
+local function ultraFPSBoost()
+    fpsBoosted = true
+
+    -- Lighting full off
+    Lighting.GlobalShadows = false
+    Lighting.FogStart = 0
+    Lighting.FogEnd = 1e10
+    Lighting.Brightness = 0
+    Lighting.ClockTime = 14
+    for _, v in pairs(Lighting:GetChildren()) do
+        if v:IsA("PostEffect") or v:IsA("BlurEffect") then
+            v.Enabled = false
+        end
+    end
+
+    -- Terrain & water
+    if Terrain then
+        Terrain.WaterWaveSize = 0
+        Terrain.WaterWaveSpeed = 0
+        Terrain.WaterReflectance = 0
+        Terrain.WaterTransparency = 1
+    end
+
+    -- Destroy visual things
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            obj.Material = Enum.Material.SmoothPlastic
+            obj.Reflectance = 0
+            obj.CastShadow = false
+            obj.Color = Color3.fromRGB(90, 90, 90)
+            obj.Transparency = 0
+            if not obj:IsDescendantOf(localPlayer.Character) then
+                if not obj:FindFirstAncestorWhichIsA("Tool") then
+                    obj.Anchored = true
+                    if obj.Name ~= "Baseplate" and obj.Name ~= "FishingSpot" then
+                        obj.Size = Vector3.new(1,1,1)
+                    end
+                end
+            end
+        elseif obj:IsA("Texture") or obj:IsA("Decal") or obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            obj:Destroy()
+        elseif obj:IsA("SurfaceGui") or obj:IsA("BillboardGui") then
+            obj.Enabled = false
+        elseif obj:IsA("Light") then
+            obj.Enabled = false
+        end
+    end
+
+    -- Remove unused characters
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= localPlayer and plr.Character then
+            plr.Character:Destroy()
+        end
+    end
+
+    -- FPS Set (if supported)
+    pcall(function() setfpscap(30) end)
+end
+
+
+
 -- UI CODE STARTS
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "EugunewuModernUI"
@@ -353,6 +468,21 @@ createSwitch(contentFrames["Extras"], "Admin Detector", 0, false, function(val)
     autoLeaveEnabled = val
     if val then task.spawn(checkPlayers) end
 end)
+
+createSwitch(contentFrames["Extras"], "🔥 Ultimate FPS Boost", 1, false, function(val)
+    ultimateFPSBoost(val)
+end)
+
+createSwitch(contentFrames["Extras"], "⚡ ULTRA FPS BOOST MODE", 2, false, function(val)
+    if val then
+        ultraFPSBoost()
+    else
+        warn("Visual belum dikembalikan (mode ini tidak reversible).")
+    end
+end)
+
+
+
 
 -- Dropdown Rod Selector in Settings
 local rodLabel = Instance.new("TextLabel", contentFrames["Settings"])
