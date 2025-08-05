@@ -103,7 +103,7 @@ local function teleportAndSell()
     if lastLocation then
         root.CFrame = CFrame.new(lastLocation)
     end
-    task.wait(math.random(0, 600))
+    task.wait(math.random(0, 120))
 end
 
 -- FUNCTION: Anti AFK
