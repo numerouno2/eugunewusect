@@ -115,18 +115,29 @@ local function antiAFK()
     end
 end
 
--- FUNCTION: Admin Detector
-local function checkPlayers()
-    while autoLeaveEnabled do
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= localPlayer and adminUserIds[player.UserId] then
-                localPlayer:Kick("Admin Detected. AutoLeave Active.")
-                return
-            end
-        end
-        task.wait(5)
+-- FUNCTION: Admin Detector (Kick langsung)
+local function kickIfAdmin(player)
+    if adminUserIds[player.UserId] then
+        warn("⚠️ Admin Detected:", player.Name)
+        task.wait(0.5)
+        localPlayer:Kick("Admin Detected. Kamu dikeluarkan otomatis.")
     end
 end
+
+local function checkPlayers()
+    -- Cek yang sudah ada saat script jalan
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= localPlayer then
+            kickIfAdmin(player)
+        end
+    end
+
+    -- Deteksi admin baru join
+    Players.PlayerAdded:Connect(function(player)
+        kickIfAdmin(player)
+    end)
+end
+
 
 local function ultimateFPSBoost(enable)
     fpsBoosted = enable
@@ -610,3 +621,4 @@ UserInputService.InputChanged:Connect(function(input)
         valueLabel.Text = tostring(value) .. " detik"
     end
 end)
+
