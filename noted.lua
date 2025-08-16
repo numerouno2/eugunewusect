@@ -35,7 +35,7 @@ local adminUserIds = {
 local afkFishPos = Vector3.new(-80, 14, -149)
 local sellPos = Vector3.new(-210, 15, 357)
 local ambilRodPos = Vector3.new(78, 14, 442)
-local afkSpotPos = Vector3.new(150, 200, -90)
+local afkSpotPos = Vector3.new(200, 200, -90)
 
 -- ROD LIST
 local rodList = {
@@ -621,6 +621,7 @@ UserInputService.InputChanged:Connect(function(input)
         valueLabel.Text = tostring(value) .. " detik"
     end
 end)
+
 
 
 
