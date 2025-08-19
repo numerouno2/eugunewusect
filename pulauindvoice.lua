@@ -107,9 +107,9 @@ UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Dummy Items (simulasi rod)
 local rods = {
-    "BasicRod","ProRod","GoldRod","MythicRod","UltraRod",
-    "BebekRod","GoldRod","DevilRod","KeyRod","PinkRod","ShadowRod",
-    "RedShadowRod","SlayerRod","DiamondRod","StarRod","KingRod"
+    "NormalRod","GoldRod","ShadowRod","KeyRod","DevilRod",
+    "PinkRod","BebekRod","KingRod","StarRod","DiamondRod","RedShadowRod",
+    "SlayerRod"
 }
 for _, rod in ipairs(rods) do
     local item = Instance.new("TextButton")
