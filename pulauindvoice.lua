@@ -107,7 +107,7 @@ UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Dummy Items (simulasi rod)
 local rods = {
-    "BasicRod","ProRod","GoldenRod","MythicRod","UltraRod",
+    "BasicRod","ProRod","GoldRod","MythicRod","UltraRod",
     "BebekRod","GoldRod","DevilRod","KeyRod","PinkRod","ShadowRod",
     "RedShadowRod","SlayerRod","DiamondRod","StarRod","KingRod"
 }
