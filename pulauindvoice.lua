@@ -1,7 +1,9 @@
 -- Services
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 
 -- ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -18,10 +20,7 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Parent = screenGui
-
--- Corner
-local corner = Instance.new("UICorner", mainFrame)
-corner.CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,12)
 
 -- Header
 local header = Instance.new("Frame")
@@ -29,9 +28,7 @@ header.Size = UDim2.new(1,0,0,35)
 header.BackgroundColor3 = Color3.fromRGB(20,20,20)
 header.BorderSizePixel = 0
 header.Parent = mainFrame
-
-local headerCorner = Instance.new("UICorner", header)
-headerCorner.CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", header).CornerRadius = UDim.new(0,12)
 
 -- Title
 local title = Instance.new("TextLabel")
@@ -100,17 +97,18 @@ dropdownFrame.Visible = true
 dropdownFrame.ClipsDescendants = true
 dropdownFrame.Parent = content
 Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0,6)
-
 local UIListLayout = Instance.new("UIListLayout", dropdownFrame)
 UIListLayout.Padding = UDim.new(0,2)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Dummy Items (simulasi rod)
+-- List Rods
 local rods = {
     "NormalRod","GoldRod","ShadowRod","KeyRod","DevilRod",
-    "PinkRod","BebekRod","KingRod","StarRod","DiamondRod","RedShadowRod",
-    "SlayerRod"
+    "PinkRod","BebekRod","KingRod","StarRod","DiamondRod",
+    "RedShadowRod","SlayerRod"
 }
+
+local selectedRod = "NormalRod"
 for _, rod in ipairs(rods) do
     local item = Instance.new("TextButton")
     item.Size = UDim2.new(1, -5, 0, 25)
@@ -123,6 +121,7 @@ for _, rod in ipairs(rods) do
     Instance.new("UICorner", item).CornerRadius = UDim.new(0,6)
 
     item.MouseButton1Click:Connect(function()
+        selectedRod = rod
         dropdownBtn.Text = rod.." ▼"
         TweenService:Create(dropdownFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,-40,0,0)}):Play()
         dropdownOpen = false
@@ -163,9 +162,55 @@ startBtn.TextColor3 = Color3.fromRGB(255,255,255)
 startBtn.Parent = content
 Instance.new("UICorner", startBtn).CornerRadius = UDim.new(0,8)
 
+-- AUTO FISH DUPE
+local running = false
+local function autoFish()
+    local remote = ReplicatedStorage:WaitForChild("BloxbizRemotes"):WaitForChild("OnSendGuiImpressions")
+    while running do
+        pcall(function()
+            remote:FireServer({{
+                button_path = "ContextActionGui.ContextButtonFrame.ContextActionButton",
+                button_name = "ContextActionButton"
+            }})
+
+            local char = player.Character or player.CharacterAdded:Wait()
+            local rod = player.Backpack:FindFirstChild(selectedRod)
+            if rod and not char:FindFirstChild(selectedRod) then
+                rod.Parent = char
+                task.wait(0.001)
+            end
+
+            local heldRod = char:FindFirstChild(selectedRod)
+            if heldRod then
+                local minigame = heldRod:FindFirstChild("MiniGame")
+                if minigame then
+                    for i = 1, 50 do
+                        minigame:FireServer("Complete")
+                    end
+                end
+            end
+        end)
+        task.wait(0.05)
+    end
+end
+
+-- Toggle Start/Stop
+startBtn.MouseButton1Click:Connect(function()
+    running = not running
+    if running then
+        startBtn.Text = "⏹ Stop Dupe"
+        startBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
+        task.spawn(autoFish)
+    else
+        startBtn.Text = "🚀 Start Dupe"
+        startBtn.BackgroundColor3 = Color3.fromRGB(70,130,180)
+    end
+end)
+
 -- Close Action
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
+    running = false
 end)
 
 -- Minimize Action
