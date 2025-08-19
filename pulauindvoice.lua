@@ -1,188 +1,182 @@
--- ⚡ Eugunewu HUB - AutoFish
--- UI dengan Dropdown Scroll + Minimize
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Services
 local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
-local localPlayer = Players.LocalPlayer
-local running = false
-local selectedRod = "NormalRod"
-
--- ================= UI SETUP =================
-local screenGui = Instance.new("ScreenGui", localPlayer:WaitForChild("PlayerGui"))
-screenGui.Name = "EugunewuHub"
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DupeUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
 -- Main Frame
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 260, 0, 180)
-mainFrame.Position = UDim2.new(0.5, -130, 0.4, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 280, 0, 200)
+mainFrame.Position = UDim2.new(0.5, -140, 0.5, -100)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
+mainFrame.Parent = screenGui
 
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 8)
-local stroke = Instance.new("UIStroke", mainFrame)
-stroke.Color = Color3.fromRGB(255, 170, 0)
-stroke.Thickness = 2
+-- Corner
+local corner = Instance.new("UICorner", mainFrame)
+corner.CornerRadius = UDim.new(0,12)
+
+-- Header
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1,0,0,35)
+header.BackgroundColor3 = Color3.fromRGB(20,20,20)
+header.BorderSizePixel = 0
+header.Parent = mainFrame
+
+local headerCorner = Instance.new("UICorner", header)
+headerCorner.CornerRadius = UDim.new(0,12)
 
 -- Title
-local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1, -40, 0, 30)
-title.Position = UDim2.new(0, 10, 0, 5)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-70,1,0)
+title.Position = UDim2.new(0,10,0,0)
 title.BackgroundTransparency = 1
-title.Text = "⚡ Eugunewu HUB"
-title.TextColor3 = Color3.fromRGB(255, 200, 0)
-title.TextSize = 16
+title.Text = "🎣 Eugunewu HUB PVID"
 title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.fromRGB(255,255,255)
 title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = header
 
 -- Minimize Button
-local minimizeBtn = Instance.new("TextButton", mainFrame)
-minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
-minimizeBtn.Position = UDim2.new(1, -35, 0, 5)
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Size = UDim2.new(0,25,0,25)
+minimizeBtn.Position = UDim2.new(1,-60,0.5,-12)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
 minimizeBtn.Text = "-"
-minimizeBtn.Font = Enum.Font.GothamBold
 minimizeBtn.TextSize = 20
-minimizeBtn.TextColor3 = Color3.new(1,1,1)
-minimizeBtn.BackgroundTransparency = 1
+minimizeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.Parent = header
+Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0,6)
 
--- Content Frame
-local content = Instance.new("Frame", mainFrame)
-content.Size = UDim2.new(1, -20, 1, -50)
-content.Position = UDim2.new(0, 10, 0, 40)
+-- Close Button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0,25,0,25)
+closeBtn.Position = UDim2.new(1,-30,0.5,-12)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
+closeBtn.Text = "X"
+closeBtn.TextSize = 18
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Parent = header
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,6)
+
+-- Content
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1,0,1,-35)
+content.Position = UDim2.new(0,0,0,35)
 content.BackgroundTransparency = 1
+content.Parent = mainFrame
 
 -- Dropdown Button
-local dropdownBtn = Instance.new("TextButton", content)
-dropdownBtn.Size = UDim2.new(1, 0, 0, 30)
-dropdownBtn.Text = "🎣 Pilih Pancingan: "..selectedRod
+local dropdownBtn = Instance.new("TextButton")
+dropdownBtn.Size = UDim2.new(1,-40,0,30)
+dropdownBtn.Position = UDim2.new(0,20,0,15)
+dropdownBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+dropdownBtn.Text = "Pilih Pancingan ▼"
 dropdownBtn.Font = Enum.Font.Gotham
 dropdownBtn.TextSize = 14
-dropdownBtn.TextColor3 = Color3.new(1,1,1)
-dropdownBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+dropdownBtn.TextColor3 = Color3.fromRGB(255,255,255)
+dropdownBtn.Parent = content
 Instance.new("UICorner", dropdownBtn).CornerRadius = UDim.new(0,6)
 
--- Dropdown (ScrollingFrame biar bisa scroll)
-local dropdownFrame = Instance.new("ScrollingFrame", content)
-dropdownFrame.Size = UDim2.new(1, 0, 0, 0) -- awal kecil
-dropdownFrame.Position = UDim2.new(0,0,0,35)
-dropdownFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-dropdownFrame.ClipsDescendants = true
+-- Dropdown Frame
+local dropdownFrame = Instance.new("ScrollingFrame")
+dropdownFrame.Size = UDim2.new(1,-40,0,0)
+dropdownFrame.Position = UDim2.new(0,20,0,50)
+dropdownFrame.BackgroundColor3 = Color3.fromRGB(50,50,50)
+dropdownFrame.BorderSizePixel = 0
 dropdownFrame.ScrollBarThickness = 4
 dropdownFrame.CanvasSize = UDim2.new(0,0,0,0)
+dropdownFrame.Visible = true
+dropdownFrame.ClipsDescendants = true
+dropdownFrame.Parent = content
 Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0,6)
 
 local UIListLayout = Instance.new("UIListLayout", dropdownFrame)
-UIListLayout.Padding = UDim.new(0,4)
+UIListLayout.Padding = UDim.new(0,2)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- List rod
+-- Dummy Items (simulasi rod)
 local rods = {
-    "NormalRod","BebekRod","GoldRod","DevilRod","KeyRod","PinkRod","ShadowRod",
+    "Basic Rod","Pro Rod","Golden Rod","Mythic Rod","Ultra Rod",
+    "BebekRod","GoldRod","DevilRod","KeyRod","PinkRod","ShadowRod",
     "RedShadowRod","SlayerRod","DiamondRod","StarRod","KingRod"
 }
-
--- Buat tombol pilihan rod
 for _, rod in ipairs(rods) do
-    local opt = Instance.new("TextButton", dropdownFrame)
-    opt.Size = UDim2.new(1, -10, 0, 25)
-    opt.Text = rod
-    opt.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    opt.TextColor3 = Color3.new(1,1,1)
-    opt.Font = Enum.Font.Gotham
-    opt.TextSize = 13
-    Instance.new("UICorner", opt).CornerRadius = UDim.new(0,5)
+    local item = Instance.new("TextButton")
+    item.Size = UDim2.new(1, -5, 0, 25)
+    item.BackgroundColor3 = Color3.fromRGB(70,70,70)
+    item.Text = rod
+    item.Font = Enum.Font.Gotham
+    item.TextSize = 14
+    item.TextColor3 = Color3.fromRGB(255,255,255)
+    item.Parent = dropdownFrame
+    Instance.new("UICorner", item).CornerRadius = UDim.new(0,6)
 
-    opt.MouseButton1Click:Connect(function()
-        selectedRod = rod
-        dropdownBtn.Text = "🎣 "..rod
-        TweenService:Create(dropdownFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,0,0,0)}):Play()
+    item.MouseButton1Click:Connect(function()
+        dropdownBtn.Text = rod.." ▼"
+        TweenService:Create(dropdownFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,-40,0,0)}):Play()
         dropdownOpen = false
     end)
 end
 
--- Update canvas size otomatis
-UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    dropdownFrame.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+10)
-end)
+-- Update Scroll & Height
+local function updateDropdownHeight()
+    local maxVisible = 2 * 30 -- hanya 2 item
+    local contentHeight = UIListLayout.AbsoluteContentSize.Y
+    dropdownFrame.CanvasSize = UDim2.new(0,0,0,contentHeight)
+    local finalHeight = math.min(contentHeight, maxVisible)
+    dropdownFrame.Size = UDim2.new(1,-40,0,finalHeight)
+end
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateDropdownHeight)
+updateDropdownHeight()
 
--- Start Button
-local startBtn = Instance.new("TextButton", content)
-startBtn.Size = UDim2.new(1, 0, 0, 35)
-startBtn.Position = UDim2.new(0, 0, 1, -40)
-startBtn.Text = "▶ Start Dupe"
-startBtn.BackgroundColor3 = Color3.fromRGB(0,170,80)
-startBtn.TextColor3 = Color3.new(1,1,1)
-startBtn.Font = Enum.Font.GothamBold
-startBtn.TextSize = 14
-Instance.new("UICorner", startBtn).CornerRadius = UDim.new(0,6)
-
--- ========== LOGIC ==========
--- Toggle dropdown
+-- Toggle Dropdown
 local dropdownOpen = false
 dropdownBtn.MouseButton1Click:Connect(function()
     if dropdownOpen then
-        TweenService:Create(dropdownFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,0,0,0)}):Play()
+        TweenService:Create(dropdownFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,-40,0,0)}):Play()
     else
-        local maxHeight = 120 -- tinggi maksimal dropdown (scroll muncul kalau lebih panjang)
-        local contentHeight = UIListLayout.AbsoluteContentSize.Y
-        local finalHeight = math.min(maxHeight, contentHeight)
-        TweenService:Create(dropdownFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,0,0,finalHeight)}):Play()
+        updateDropdownHeight()
     end
     dropdownOpen = not dropdownOpen
 end)
 
--- Minimize
-local minimized = false
-minimizeBtn.MouseButton1Click:Connect(function()
-    if minimized then
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0,260,0,180)}):Play()
-        content.Visible = true
-        title.Visible = true
-        minimizeBtn.Text = "-"
-    else
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0,60,0,40)}):Play()
-        content.Visible = false
-        title.Visible = false
-        minimizeBtn.Text = "+"
-    end
-    minimized = not minimized
+-- Start Button
+local startBtn = Instance.new("TextButton")
+startBtn.Size = UDim2.new(1,-40,0,35)
+startBtn.Position = UDim2.new(0,20,1,-50)
+startBtn.BackgroundColor3 = Color3.fromRGB(70,130,180)
+startBtn.Text = "🚀 Start Dupe"
+startBtn.Font = Enum.Font.GothamBold
+startBtn.TextSize = 16
+startBtn.TextColor3 = Color3.fromRGB(255,255,255)
+startBtn.Parent = content
+Instance.new("UICorner", startBtn).CornerRadius = UDim.new(0,8)
+
+-- Close Action
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
 end)
 
--- AutoFish Dupe
-local function autoFish()
-    local remote = ReplicatedStorage:WaitForChild("BloxbizRemotes"):WaitForChild("OnSendGuiImpressions")
-    while running do
-        pcall(function()
-            remote:FireServer({{
-                button_path = "ContextActionGui.ContextButtonFrame.ContextActionButton",
-                button_name = "ContextActionButton"
-            }})
-            local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            local rod = localPlayer.Backpack:FindFirstChild(selectedRod)
-            if rod and not char:FindFirstChild(selectedRod) then
-                rod.Parent = char
-                task.wait(0.001)
-            end
-            local heldRod = char:FindFirstChild(selectedRod)
-            if heldRod then
-                local minigame = heldRod:FindFirstChild("MiniGame")
-                if minigame then
-                    for i = 1, 50 do
-                        minigame:FireServer("Complete")
-                    end
-                end
-            end
-        end)
-        task.wait(0.05)
-    end
-end
-
-startBtn.MouseButton1Click:Connect(function()
-    running = not running
-    startBtn.Text = running and "⏹ Stop Dupe" or "▶ Start Dupe"
-    if running then
-        task.spawn(autoFish)
+-- Minimize Action
+local minimized = false
+minimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        TweenService:Create(mainFrame, TweenInfo.new(0.25), {Size = UDim2.new(0,280,0,35)}):Play()
+        content.Visible = false
+    else
+        TweenService:Create(mainFrame, TweenInfo.new(0.25), {Size = UDim2.new(0,280,0,200)}):Play()
+        content.Visible = true
     end
 end)
